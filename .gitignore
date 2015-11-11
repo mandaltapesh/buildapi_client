@@ -58,3 +58,6 @@ target/
 
 # Jupyter notebooks
 notebooks/
+
+# venv
+venv
