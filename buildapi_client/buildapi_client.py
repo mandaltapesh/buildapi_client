@@ -9,7 +9,6 @@ https://secure.pub.build.mozilla.org/buildapi/self-serve
 The docs can be found in here:
 http://moz-releng-buildapi.readthedocs.org
 """
-from __future__ import absolute_import
 import json
 import logging
 import os
@@ -153,4 +152,4 @@ def make_query_repositories_request(auth):
     req = requests.get(url, auth=auth)
     if req.status_code == 401:
         raise BuildapiAuthError("Your credentials were invalid. Please try again.")
-    return req
+    return req.json()
