@@ -14,5 +14,5 @@ setup(
     author_email='armenzg@mozilla.com',
     description="Script designed to trigger jobs through Release Engineering's buildapi self-serve service.",
     license='MPL2',
-    url='https://github.com/mozilla/build-buildapi',
+    url='https://github.com/armenzg/buildapi_client',
 )
