@@ -5,7 +5,6 @@ import unittest
 from mock import patch, Mock
 
 import buildapi_client
-from buildapi_client.buildapi_client import BuildapiAuthError
 from buildapi_client.buildapi_client import HOST_ROOT
 
 POST_RESPONSE = """{
@@ -63,7 +62,7 @@ class TestTriggerJob(unittest.TestCase):
     @patch('requests.post', return_value=mock_response(POST_RESPONSE, 401))
     def test_bad_response(self, post):
         """trigger_arbitrary_job should raise an BuildapiAuthError if it receives a bad response."""
-        with self.assertRaises(BuildapiAuthError):
+        with self.assertRaises(buildapi_client.BuildapiAuthError):
             buildapi_client.trigger_arbitrary_job("repo", "builder", "123456123456", auth=None, dry_run=False)
 
 
