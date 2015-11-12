@@ -3,5 +3,5 @@ from buildapi_client import (
     make_cancel_request,
     make_retrigger_request,
     make_query_repositories_request,
-	BuildapiAuthError
+    BuildapiAuthError
 )
