@@ -112,6 +112,15 @@ def make_cancel_request(repo_name, request_id, auth, dry_run=True):
     # to do that without doing an additional request.
     return req
 
+		
+def make_query_repositories_request(auth):
+    url = "%s/branches?format=json" % HOST_ROOT
+    LOG.debug("About to fetch %s" % url)
+    req = requests.get(url, auth=auth)
+    if req.status_code == 401:
+        raise BuildapiAuthError("Your credentials were invalid. Please try again.")
+    return req.json()
+
 
 def _builders_api_url(repo_name, builder, revision):
     return r'''%s/%s/builders/%s/%s''' % (
@@ -145,11 +154,3 @@ def _payload(repo_name, revision, files=[], extra_properties=None):
         payload['files'] = json.dumps(files)
 
     return payload
-	
-def make_query_repositories_request(auth):
-    url = "%s/branches?format=json" % HOST_ROOT
-    LOG.debug("About to fetch %s" % url)
-    req = requests.get(url, auth=auth)
-    if req.status_code == 401:
-        raise BuildapiAuthError("Your credentials were invalid. Please try again.")
-    return req.json()
