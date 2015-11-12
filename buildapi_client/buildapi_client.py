@@ -113,9 +113,13 @@ def make_cancel_request(repo_name, request_id, auth, dry_run=True):
     return req
 
 		
-def make_query_repositories_request(auth):
+def make_query_repositories_request(auth, dry_run=True):
     url = "%s/branches?format=json" % HOST_ROOT
     LOG.debug("About to fetch %s" % url)
+    if dry_run:
+        LOG.info('We would make a GET request to %s.' % url)
+        return None
+
     req = requests.get(url, auth=auth)
     if req.status_code == 401:
         raise BuildapiAuthError("Your credentials were invalid. Please try again.")
