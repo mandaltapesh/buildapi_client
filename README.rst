@@ -20,6 +20,6 @@ Development
 
 Pull the latest development version::
 
-    git clone https://github.com/mozilla/build-buildapi.git
+    git clone https://github.com/armenzg/buildapi_client.git
 
 
