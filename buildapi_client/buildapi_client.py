@@ -11,7 +11,6 @@ http://moz-releng-buildapi.readthedocs.org
 """
 import json
 import logging
-import os
 
 import requests
 
@@ -158,3 +157,27 @@ def _payload(repo_name, revision, files=[], extra_properties=None):
         payload['files'] = json.dumps(files)
 
     return payload
+
+
+#
+# Functions to query
+#
+def query_jobs_schedule(repo_name, revision, auth):
+    """
+    Query Buildapi for jobs.
+    """
+    url = "%s/%s/rev/%s?format=json" % (HOST_ROOT, repo_name, revision)
+    LOG.debug("About to fetch %s" % url)
+    req = requests.get(url, auth=auth)
+
+    # If the revision doesn't exist on buildapi, that means there are
+    # no builapi jobs for this revision
+    if req.status_code not in [200]:
+        return []
+
+    return req.json()
+
+
+def query_jobs_url(repo_name, revision):
+    """Return URL of where a developer can login to see the scheduled jobs for a revision."""
+    return "%s/%s/rev/%s" % (HOST_ROOT, repo_name, revision)

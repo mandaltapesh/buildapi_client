@@ -3,5 +3,7 @@ from buildapi_client import (
     make_cancel_request,
     make_retrigger_request,
     make_query_repositories_request,
+    query_jobs_schedule,
+    query_jobs_url,
     BuildapiAuthError
 )
