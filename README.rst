@@ -1,5 +1,5 @@
 ============================================
-buildapi_client
+BuildAPI Client
 ============================================
 
 Installation
@@ -12,7 +12,7 @@ Installation
 Documentation
 =============
 
-Usage is described in the documentation:
+This is a Python client for Mozilla's BuildAPI
 http://moz-releng-buildapi.readthedocs.org
 
 Development

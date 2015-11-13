@@ -140,7 +140,7 @@ class TestMakeQueryRepositoriesRequest(unittest.TestCase):
 
     @patch('requests.get', return_value=Mock())
     def test_call_without_dry_run(self, get):
-        """trigger_arbitrary_job should call requests.post."""
+        """make_query_repositories_request should call requests.get."""
         buildapi_client.make_query_repositories_request(auth=None, dry_run=False)
 
         # We expect that make_query_repositories_request will call requests.get
