@@ -1,5 +1,4 @@
 import json
-import os
 import unittest
 
 from mock import patch, Mock
@@ -33,7 +32,7 @@ def mock_response(content, status):
     response.reason = 'OK'
     return response
 
-	
+
 class TestTriggerJob(unittest.TestCase):
 
     """Test that trigger_arbitrary_job makes the right POST requests."""
@@ -41,7 +40,8 @@ class TestTriggerJob(unittest.TestCase):
     @patch('requests.post', return_value=mock_response(POST_RESPONSE, 200))
     def test_call_without_dry_run(self, post):
         """trigger_arbitrary_job should call requests.post."""
-        buildapi_client.trigger_arbitrary_job("repo", "builder", "123456123456", auth=None, dry_run=False)
+        buildapi_client.trigger_arbitrary_job(
+            "repo", "builder", "123456123456", auth=None, dry_run=False)
         # We expect that trigger_arbitrary_job will call requests.post
         # once with the following arguments
         post.assert_called_once_with(
@@ -55,7 +55,8 @@ class TestTriggerJob(unittest.TestCase):
     def test_call_with_dry_run(self, post):
         """trigger_arbitrary_job should return None when dry_run is True."""
         self.assertEquals(
-            buildapi_client.trigger_arbitrary_job("repo", "builder", "123456123456", auth=None, dry_run=True), None)
+            buildapi_client.trigger_arbitrary_job(
+                "repo", "builder", "123456123456", auth=None, dry_run=True), None)
         # trigger_arbitrary_job should not call requests.post when dry_run is True
         assert post.call_count == 0
 
@@ -63,7 +64,8 @@ class TestTriggerJob(unittest.TestCase):
     def test_bad_response(self, post):
         """trigger_arbitrary_job should raise an BuildapiAuthError if it receives a bad response."""
         with self.assertRaises(buildapi_client.BuildapiAuthError):
-            buildapi_client.trigger_arbitrary_job("repo", "builder", "123456123456", auth=None, dry_run=False)
+            buildapi_client.trigger_arbitrary_job(
+                "repo", "builder", "123456123456", auth=None, dry_run=False)
 
 
 class TestMakeRetriggerRequest(unittest.TestCase):
@@ -86,14 +88,16 @@ class TestMakeRetriggerRequest(unittest.TestCase):
     def test_call_with_dry_run(self, post):
         """make_retrigger_request should return None when dry_run is True."""
         self.assertEquals(
-            buildapi_client.make_retrigger_request("repo", "1234567", auth=None, dry_run=True), None)
+            buildapi_client.make_retrigger_request(
+                "repo", "1234567", auth=None, dry_run=True), None)
         # make_retrigger_request should not call requests.post when dry_run is True
         assert post.call_count == 0
 
     @patch('requests.post', return_value=mock_response(POST_RESPONSE, 200))
     def test_call_with_different_priority(self, post):
         """make_retrigger_request should call requests.post with the right priority."""
-        buildapi_client.make_retrigger_request("repo", "1234567", priority=2, auth=None, dry_run=False)
+        buildapi_client.make_retrigger_request(
+            "repo", "1234567", priority=2, auth=None, dry_run=False)
         post.assert_called_once_with(
             '%s/%s/request' % (HOST_ROOT, "repo"),
             headers={'Accept': 'application/json'},
@@ -103,7 +107,8 @@ class TestMakeRetriggerRequest(unittest.TestCase):
     @patch('requests.post', return_value=mock_response(POST_RESPONSE, 200))
     def test_call_with_different_count(self, post):
         """make_retrigger_request should call requests.post with the right count."""
-        buildapi_client.make_retrigger_request("repo", "1234567", count=10, auth=None, dry_run=False)
+        buildapi_client.make_retrigger_request(
+            "repo", "1234567", count=10, auth=None, dry_run=False)
         post.assert_called_once_with(
             '%s/%s/request' % (HOST_ROOT, "repo"),
             headers={'Accept': 'application/json'},
@@ -133,6 +138,7 @@ class TestMakeCancelRequest(unittest.TestCase):
             buildapi_client.make_cancel_request("repo", "1234567", auth=None, dry_run=True), None)
         # make_cancel_request should not call requests.delete when dry_run is True
         assert delete.call_count == 0
+
 
 class TestMakeQueryRepositoriesRequest(unittest.TestCase):
 
