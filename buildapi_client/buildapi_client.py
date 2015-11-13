@@ -112,7 +112,7 @@ def make_cancel_request(repo_name, request_id, auth, dry_run=True):
     # to do that without doing an additional request.
     return req
 
-		
+
 def make_query_repositories_request(auth, dry_run=True):
     url = "%s/branches?format=json" % HOST_ROOT
     LOG.debug("About to fetch %s" % url)
