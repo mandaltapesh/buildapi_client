@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+ /usr/bin/env pythoy
 """
 This script is designed to trigger jobs through Release Engineering's
 buildapi self-serve service.
@@ -14,12 +14,9 @@ import logging
 
 import requests
 
-HOST_ROOT = 'https://secure.pub.build.mozilla.org/buildapi/self-serve'
-LOG = logging.getLogger("buildapi_client")
-
-
-class BuildapiAuthError(Exception):
-    pass
+HOST_ROOT = 'https://secure.pub.build.mozilla.org/buildapi'
+SELF_SERVE = '{}/self-serve'.format(HOST_ROOT)
+LOG = logging.getLogger('buildapi_client')
 
 
 def trigger_arbitrary_job(repo_name, builder, revision, auth, files=[], dry_run=False,
@@ -70,7 +67,7 @@ def make_retrigger_request(repo_name, request_id, auth, count=1, priority=0, dry
     parameters. `count` defaults to 1, and represents the number
     of times this build  will be rebuilt.
     """
-    url = '{}/{}/request'.format(HOST_ROOT, repo_name)
+    url = '{}/{}/request'.format(SELF_SERVE, repo_name)
     payload = {'request_id': request_id}
 
     if count != 1 or priority != 0:
@@ -93,14 +90,14 @@ def make_retrigger_request(repo_name, request_id, auth, count=1, priority=0, dry
     return req
 
 
-def make_cancel_request(repo_name, request_id, auth, dry_run=True):
+def make_cancel_request(repo_name, request_id, dry_run=True):
     """
     Cancel a request using buildapi self-serve. Returns a request.
 
     Buildapi documentation:
     DELETE /self-serve/{branch}/request/{request_id} Cancel the given request
     """
-    url = '{}/{}/request/{}'.format(HOST_ROOT, repo_name, request_id)
+    url = '{}/{}/request/{}'.format(SELF_SERVE, repo_name, request_id)
     if dry_run:
         LOG.info('We would make a DELETE request to %s.' % url)
         return None
@@ -127,7 +124,7 @@ def make_query_repositories_request(auth, dry_run=True):
 
 def _builders_api_url(repo_name, builder, revision):
     return r'''%s/%s/builders/%s/%s''' % (
-        HOST_ROOT,
+        SELF_SERVE,
         repo_name,
         builder,
         revision
@@ -136,7 +133,7 @@ def _builders_api_url(repo_name, builder, revision):
 
 def _jobs_api_url(job_id):
     """This is the URL to a self-serve job request (scheduling, canceling, etc)."""
-    return r'''%s/jobs/%s''' % (HOST_ROOT, job_id)
+    return r'''%s/jobs/%s''' % (SELF_SERVE, job_id)
 
 
 def _payload(repo_name, revision, files=[], extra_properties=None):
@@ -166,9 +163,9 @@ def query_jobs_schedule(repo_name, revision, auth):
     """
     Query Buildapi for jobs.
     """
-    url = "%s/%s/rev/%s?format=json" % (HOST_ROOT, repo_name, revision)
+    url = "%s/%s/rev/%s?format=json" % (SELF_SERVE, repo_name, revision)
     LOG.debug("About to fetch %s" % url)
-    req = requests.get(url, auth=auth)
+    req = requests.get(url, auth)
 
     # If the revision doesn't exist on buildapi, that means there are
     # no builapi jobs for this revision
@@ -180,4 +177,38 @@ def query_jobs_schedule(repo_name, revision, auth):
 
 def query_jobs_url(repo_name, revision):
     """Return URL of where a developer can login to see the scheduled jobs for a revision."""
-    return "%s/%s/rev/%s" % (HOST_ROOT, repo_name, revision)
+    return "%s/%s/rev/%s" % (SELF_SERVE, repo_name, revision)
+
+
+def query_pending_jobs(auth, repo_name=None, return_raw=False):
+    """Return pending jobs"""
+    url = '%s/pending?format=json' % HOST_ROOT
+    LOG.debug('About to fetch %s' % url)
+    req = requests.get(url, auth=auth)
+
+    # If the revision doesn't exist on buildapi, that means there are
+    # no builapi jobs for this revision
+    if req.status_code not in [200]:
+        return []
+
+    raw = req.json()
+
+    # If we don't want the data structure to be reduced
+    if return_raw:
+        return raw
+
+    # If we only want pending jobs of a specific repo
+    if repo_name and repo_name in raw['pending'].keys():
+        repo_list = [repo_name]
+    else:
+        repo_list = raw['pending'].keys()
+
+    # Data structure to return
+    data = {}
+    for repo in repo_list:
+        data[repo] = {}
+        repo_jobs = raw['pending'][repo]
+        for revision in repo_jobs.iteritems():
+            data[repo][revision[0]] = revision[1]
+
+    return data
