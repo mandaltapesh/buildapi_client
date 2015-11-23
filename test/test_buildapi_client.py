@@ -4,7 +4,7 @@ import unittest
 from mock import patch, Mock
 
 import buildapi_client
-from buildapi_client.buildapi_client import HOST_ROOT
+from buildapi_client.buildapi_client import SELF_SERVE
 
 POST_RESPONSE = """{
     "body": {
@@ -45,7 +45,7 @@ class TestTriggerJob(unittest.TestCase):
         # We expect that trigger_arbitrary_job will call requests.post
         # once with the following arguments
         post.assert_called_once_with(
-            '%s/%s/builders/%s/%s' % (HOST_ROOT, "repo", "builder", "123456123456"),
+            '%s/%s/builders/%s/%s' % (SELF_SERVE, "repo", "builder", "123456123456"),
             headers={'Accept': 'application/json'},
             data={'properties':
                   '{"branch": "repo", "revision": "123456123456"}'},
@@ -79,7 +79,7 @@ class TestMakeRetriggerRequest(unittest.TestCase):
         # We expect that make_retrigger_request will call requests.post
         # once with the following arguments
         post.assert_called_once_with(
-            '%s/%s/request' % (HOST_ROOT, "repo"),
+            '%s/%s/request' % (SELF_SERVE, "repo"),
             headers={'Accept': 'application/json'},
             data={'request_id': '1234567'},
             auth=None)
@@ -99,7 +99,7 @@ class TestMakeRetriggerRequest(unittest.TestCase):
         buildapi_client.make_retrigger_request(
             "repo", "1234567", priority=2, auth=None, dry_run=False)
         post.assert_called_once_with(
-            '%s/%s/request' % (HOST_ROOT, "repo"),
+            '%s/%s/request' % (SELF_SERVE, "repo"),
             headers={'Accept': 'application/json'},
             data={'count': 1, 'priority': 2, 'request_id': '1234567'},
             auth=None)
@@ -110,7 +110,7 @@ class TestMakeRetriggerRequest(unittest.TestCase):
         buildapi_client.make_retrigger_request(
             "repo", "1234567", count=10, auth=None, dry_run=False)
         post.assert_called_once_with(
-            '%s/%s/request' % (HOST_ROOT, "repo"),
+            '%s/%s/request' % (SELF_SERVE, "repo"),
             headers={'Accept': 'application/json'},
             data={'count': 10, 'priority': 0, 'request_id': '1234567'},
             auth=None)
@@ -128,7 +128,7 @@ class TestMakeCancelRequest(unittest.TestCase):
         # We expect that make_cancel_request will call requests.delete
         # once with the following arguments
         delete.assert_called_once_with(
-            '%s/%s/request/%s' % (HOST_ROOT, "repo", "1234567"),
+            '%s/%s/request/%s' % (SELF_SERVE, "repo", "1234567"),
             auth=None)
 
     @patch('requests.delete', return_value=Mock())
@@ -152,7 +152,7 @@ class TestMakeQueryRepositoriesRequest(unittest.TestCase):
         # We expect that make_query_repositories_request will call requests.get
         # once with the following arguments
         get.assert_called_once_with(
-            "%s/branches?format=json" % HOST_ROOT,
+            "%s/branches?format=json" % SELF_SERVE,
             auth=None)
 
     @patch('requests.get', return_value=Mock())

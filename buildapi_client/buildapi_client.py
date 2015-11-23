@@ -1,4 +1,4 @@
- /usr/bin/env pythoy
+#!/usr/bin/env python
 """
 This script is designed to trigger jobs through Release Engineering's
 buildapi self-serve service.
@@ -17,6 +17,10 @@ import requests
 HOST_ROOT = 'https://secure.pub.build.mozilla.org/buildapi'
 SELF_SERVE = '{}/self-serve'.format(HOST_ROOT)
 LOG = logging.getLogger('buildapi_client')
+
+
+class BuildapiAuthError(Exception):
+    pass
 
 
 def trigger_arbitrary_job(repo_name, builder, revision, auth, files=[], dry_run=False,
@@ -90,7 +94,7 @@ def make_retrigger_request(repo_name, request_id, auth, count=1, priority=0, dry
     return req
 
 
-def make_cancel_request(repo_name, request_id, dry_run=True):
+def make_cancel_request(repo_name, request_id, auth, dry_run=True):
     """
     Cancel a request using buildapi self-serve. Returns a request.
 
@@ -110,7 +114,7 @@ def make_cancel_request(repo_name, request_id, dry_run=True):
 
 
 def make_query_repositories_request(auth, dry_run=True):
-    url = "%s/branches?format=json" % HOST_ROOT
+    url = "%s/branches?format=json" % SELF_SERVE
     LOG.debug("About to fetch %s" % url)
     if dry_run:
         LOG.info('We would make a GET request to %s.' % url)
