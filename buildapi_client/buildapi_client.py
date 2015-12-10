@@ -153,7 +153,7 @@ def _payload(repo_name, revision, files=[], extra_properties=None):
         'properties': json.dumps(props, sort_keys=True)
     }
 
-    if files:
+    if files and all(files):
         payload['files'] = json.dumps(files)
 
     return payload
