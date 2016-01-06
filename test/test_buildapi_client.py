@@ -116,6 +116,54 @@ class TestMakeRetriggerRequest(unittest.TestCase):
             auth=None)
 
 
+class TestMakeRetriggerBuildRequest(unittest.TestCase):
+
+    """Test that make_retrigger_build_request makes the right POST requests."""
+
+    @patch('requests.post', return_value=mock_response(POST_RESPONSE, 200))
+    def test_call_without_dry_run(self, post):
+        """make_retrigger_build_request should call requests.post."""
+        buildapi_client.make_retrigger_build_request("repo", "1234567", auth=None, dry_run=False)
+        # We expect that make_retrigger_request will call requests.post
+        # once with the following arguments
+        post.assert_called_once_with(
+            '%s/%s/build' % (SELF_SERVE, "repo"),
+            headers={'Accept': 'application/json'},
+            data={'build_id': '1234567'},
+            auth=None)
+
+    @patch('requests.post', return_value=mock_response(POST_RESPONSE, 200))
+    def test_call_with_dry_run(self, post):
+        """make_retrigger_build_request should return None when dry_run is True."""
+        self.assertEquals(
+            buildapi_client.make_retrigger_build_request(
+                "repo", "1234567", auth=None, dry_run=True), None)
+        # make_retrigger_build_request should not call requests.post when dry_run is True
+        assert post.call_count == 0
+
+    @patch('requests.post', return_value=mock_response(POST_RESPONSE, 200))
+    def test_call_with_different_priority(self, post):
+        """make_retrigger_build_request should call requests.post with the right priority."""
+        buildapi_client.make_retrigger_build_request(
+            "repo", "1234567", priority=2, auth=None, dry_run=False)
+        post.assert_called_once_with(
+            '%s/%s/build' % (SELF_SERVE, "repo"),
+            headers={'Accept': 'application/json'},
+            data={'count': 1, 'priority': 2, 'build_id': '1234567'},
+            auth=None)
+
+    @patch('requests.post', return_value=mock_response(POST_RESPONSE, 200))
+    def test_call_with_different_count(self, post):
+        """make_retrigger_build_request should call requests.post with the right count."""
+        buildapi_client.make_retrigger_build_request(
+            "repo", "1234567", count=10, auth=None, dry_run=False)
+        post.assert_called_once_with(
+            '%s/%s/build' % (SELF_SERVE, "repo"),
+            headers={'Accept': 'application/json'},
+            data={'count': 10, 'priority': 0, 'build_id': '1234567'},
+            auth=None)
+
+
 class TestMakeCancelRequest(unittest.TestCase):
 
     """Test that make_cancel_request makes the right DELETE requests."""
