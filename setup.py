@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='buildapi_client',
-    version='0.2.0',
+    version='0.2.1.dev0',
     packages=find_packages(),
 
     install_requires=[
