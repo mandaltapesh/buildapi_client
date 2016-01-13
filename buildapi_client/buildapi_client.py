@@ -18,6 +18,9 @@ HOST_ROOT = 'https://secure.pub.build.mozilla.org/buildapi'
 SELF_SERVE = '{}/self-serve'.format(HOST_ROOT)
 LOG = logging.getLogger('buildapi_client')
 
+DEFAULT_COUNT_NUM = 1
+DEFAULT_PRIORITY = 0
+
 
 class BuildapiAuthError(Exception):
     pass
@@ -60,7 +63,8 @@ def trigger_arbitrary_job(repo_name, builder, revision, auth, files=[], dry_run=
         return None
 
 
-def make_retrigger_request(repo_name, request_id, auth, count=1, priority=0, dry_run=True):
+def make_retrigger_request(repo_name, request_id, auth, count=DEFAULT_COUNT_NUM,
+                           priority=DEFAULT_PRIORITY, dry_run=True):
     """
     Retrigger a request using buildapi self-serve. Returns a request.
 
@@ -74,7 +78,7 @@ def make_retrigger_request(repo_name, request_id, auth, count=1, priority=0, dry
     url = '{}/{}/request'.format(SELF_SERVE, repo_name)
     payload = {'request_id': request_id}
 
-    if count != 1 or priority != 0:
+    if count != DEFAULT_COUNT_NUM or priority != DEFAULT_PRIORITY:
         payload.update({'count': count,
                         'priority': priority})
 
@@ -102,6 +106,7 @@ def make_cancel_request(repo_name, request_id, auth, dry_run=True):
     DELETE /self-serve/{branch}/request/{request_id} Cancel the given request
     """
     url = '{}/{}/request/{}'.format(SELF_SERVE, repo_name, request_id)
+
     if dry_run:
         LOG.info('We would make a DELETE request to %s.' % url)
         return None
@@ -110,6 +115,41 @@ def make_cancel_request(repo_name, request_id, auth, dry_run=True):
     req = requests.delete(url, auth=auth)
     # TODO: add debug message with the canceled job_id URL. Find a way
     # to do that without doing an additional request.
+    return req
+
+
+def make_retrigger_build_request(repo_name, build_id, auth, count=DEFAULT_COUNT_NUM,
+                                 priority=DEFAULT_PRIORITY, dry_run=True):
+    """
+    Retrigger a build using buildapi self-serve. Returns a request.
+
+    Buildapi documentation:
+    POST	/self-serve/{branch}/build
+    Rebuild `build_id`, which must be passed in as a POST
+    `priority` and `count` are also accepted as optional
+    parameters. `count` defaults to 1, and represents the number
+    of times this build  will be rebuilt.
+    """
+    url = '{}/{}/build'.format(SELF_SERVE, repo_name)
+    payload = {'build_id': build_id}
+
+    if count != DEFAULT_COUNT_NUM or priority != DEFAULT_PRIORITY:
+        payload.update({'count': count,
+                        'priority': priority})
+
+    if dry_run:
+        LOG.info('We would make a POST request to %s with the payload: %s' % (url, str(payload)))
+        return None
+
+    LOG.info("We're going to re-trigger an existing completed job with build_id: %s %i time(s)."
+             % (build_id, count))
+    req = requests.post(
+        url,
+        headers={'Accept': 'application/json'},
+        data=payload,
+        auth=auth
+    )
+
     return req
 
 
