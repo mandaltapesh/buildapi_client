@@ -1,0 +1,5 @@
+recursive-include buildapi_client*
+recursive-include buildapi_client.egg-info *
+recursive-include test *
+include setup.py
+include README.rst
