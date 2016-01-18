@@ -209,7 +209,7 @@ def query_jobs_schedule(repo_name, revision, auth):
     """
     url = "%s/%s/rev/%s?format=json" % (SELF_SERVE, repo_name, revision)
     LOG.debug("About to fetch %s" % url)
-    req = requests.get(url, auth)
+    req = requests.get(url, auth=auth)
 
     # If the revision doesn't exist on buildapi, that means there are
     # no builapi jobs for this revision
