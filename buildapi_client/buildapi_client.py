@@ -16,7 +16,7 @@ import requests
 
 HOST_ROOT = 'https://secure.pub.build.mozilla.org/buildapi'
 SELF_SERVE = '{}/self-serve'.format(HOST_ROOT)
-LOG = logging.getLogger('buildapi_client')
+LOG = logging.getLogger('buildapi')
 
 DEFAULT_COUNT_NUM = 1
 DEFAULT_PRIORITY = 0
