@@ -66,6 +66,13 @@ class TestTriggerJob(unittest.TestCase):
         with self.assertRaises(buildapi_client.BuildapiAuthError):
             buildapi_client.trigger_arbitrary_job(
                 "repo", "builder", "123456123456", auth=None, dry_run=False)
+    
+    @patch('requests.post', return_value=mock_response(POST_RESPONSE, [None, None]))
+    def test_files(self, post):
+        """trigger_arbitrary_job should raise an BuildapiError if it receives files set to [None, None]."""
+        with self.assertRaises(buildapi_client.buildapi_client.BuildapiError):
+            buildapi_client.trigger_arbitrary_job(
+                repo_name="repo", builder="builder", revision="123456123456", auth=None, files=[None, None], dry_run=False, extra_properties=None)
 
 
 class TestMakeRetriggerRequest(unittest.TestCase):

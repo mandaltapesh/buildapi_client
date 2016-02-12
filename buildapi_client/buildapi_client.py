@@ -26,6 +26,10 @@ class BuildapiAuthError(Exception):
     pass
 
 
+class BuildapiError(Exception):
+    pass
+
+
 def trigger_arbitrary_job(repo_name, builder, revision, auth, files=[], dry_run=False,
                           extra_properties=None):
     """
@@ -52,6 +56,9 @@ def trigger_arbitrary_job(repo_name, builder, revision, auth, files=[], dry_run=
     )
     if req.status_code == 401:
         raise BuildapiAuthError("Your credentials were invalid. Please try again.")
+    
+    if files == [None, None]:
+        raise BuildapiError("The variable files was empty, please set it properly before calling this function.")
 
     try:
         content = req.json()
